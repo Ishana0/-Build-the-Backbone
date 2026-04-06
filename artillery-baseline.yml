@@ -1,0 +1,50 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: Sustained Load
+  payload:
+    # We use user1@example.com which should have a lot of orders in seed data
+    path: "users.csv"
+    fields:
+      - "email"
+      - "password"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "User Browsing and History Check"
+    flow:
+      - log: "Step 1: Health Check"
+      - get:
+          url: "/api/health"
+      
+      - log: "Step 2: Authenticate"
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "{{ password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      
+      - log: "Step 3: Browse Restaurants in Miami"
+      - get:
+          url: "/api/restaurants?city=Miami"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      - log: "Step 4: View Restaurant Menu (N+1 Impact)"
+      - get:
+          url: "/api/restaurants/1/menu"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+      
+      - log: "Step 5: View Order History (Severe N+1 Impact)"
+      - get:
+          url: "/api/orders/history"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
