@@ -1,104 +1,141 @@
-# 🍔 QuickBite: Performance Lab Boilerplate 🚀
+# 🍕 QuickBite API — Food Delivery Backend
 
-Welcome to the **QuickBite Performance Engineering Challenge**! This repository contains a production-ready (functional) food delivery API built with Node.js and PostgreSQL.
+![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue?logo=postgresql)
+![Status](https://img.shields.io/badge/Status-Work--In--Progress-orange)
 
-While the app "works," it has been architected by a "junior developer" who prioritized features over performance. Your mission is to profile, identify bottlenecks, and optimize the API to handle production-scale traffic.
-
----
-
-## 🛠️ Tech Stack
-
-- **Runtime**: Node.js v16+
-- **Framework**: Express.js
-- **Database**: PostgreSQL (Raw `pg` driver)
-- **Auth**: JWT & Bcrypt (12 rounds)
-- **Testing**: Artillery (Load Profiling)
+Welcome to the **QuickBite Food Delivery API**. This repository serves as a baseline for the **Performance Engineering & Scalability** assignment. The application provides an MVP backend for food ordering, restaurant listing, and user management.
 
 ---
 
-## 🏗️ Getting Started
+## 🚀 Quick Start
 
-### 1. Prerequisites
-- **PostgreSQL** installed and running.
-- **Node.js** (LTS recommended).
+Follow these steps to get the environment running in under 10 minutes:
 
-### 2. Environment Setup
-Copy the example environment file and update your database credentials.
-
+### 1. Project Initialization
 ```bash
-cp .env.example .env
-```
+# Clone the repository
+git clone https://github.com/kalviumcommunity/-Build-the-Backbone.git
+cd -Build-the-Backbone
 
-### 3. Install Dependencies
-```bash
+# Install dependencies
 npm install
 ```
 
-### 4. Database Setup
-Create a database named `quickbite` and run the migrations.
-
+### 2. Environment Configuration
 ```bash
-# Create tables (WITHOUT Indexes - intentional!)
+# Copy example environment file
+cp .env.example .env
+```
+*Note: Update `DATABASE_URL` in `.env` with your actual PostgreSQL connection string.*
+
+### 3. Database Preparation
+```bash
+# Initialize schema (NO performance indexes included)
 npm run migrate
 
-# Seed with 30k+ records
+# Seed with 30,000+ realistic Indian context records
 npm run seed
 ```
 
-### 5. Launch the Server
+### 4. Start the Application
 ```bash
-# Development mode with hot-reloading
+# Start development server with hot-reload
 npm run dev
 ```
 
 ---
 
-## 🧪 Profiling the API
+## 📋 Prerequisites
 
-The application is slow. **Deliberately slow.** 🐌
+- **Node.js**: v18.0.0 or higher
+- **npm**: v8.0.0 or higher
+- **PostgreSQL**: v14.0 or higher (Local or Managed)
 
-### Baseline Load Test
-Run the Artillery script to see how the system performs under moderate load:
+---
 
-```bash
-npm run test:load
+## 🔧 Environment Variables
+
+| Variable | Example | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | `postgres://user:pass@localhost:5432/quickbite` | Yes | PostgreSQL connection string |
+| `JWT_SECRET` | `super-secret-key-1234` | Yes | Token signing secret |
+| `PORT` | `3000` | No | Server listener port |
+| `LOG_QUERIES` | `true` | No | Log every database query text & duration |
+| `REDIS_URL` | `redis://localhost:6379` | No | Placeholder for caching optimization (Part B) |
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint | Auth Required | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/health` | No | System health and DB connectivity check |
+| `POST` | `/api/auth/register` | No | Register a new customer |
+| `POST` | `/api/auth/login` | No | Authenticate and get JWT token |
+| `GET` | `/api/restaurants` | No | List restaurants by city with pagination |
+| `GET` | `/api/restaurants/:id/menu` | No | Fetch menu with category nesting |
+| `GET` | `/api/orders/history` | **Yes** | Fetch full history (Warning: Slow Response) |
+| `POST` | `/api/orders` | **Yes** | Create new order (Warning: High Latency) |
+| `GET` | `/api/orders/:id` | **Yes** | Get detailed order status |
+
+---
+
+## 🏗️ Project Structure
+
+```text
+.
+├── migrations/
+│   ├── 001_create_tables.sql   # Junior developer's original schema
+│   └── 002_seed_data.sql       # High-volume Indian context data
+├── src/
+│   ├── controllers/            # Request handlers (with planted logic)
+│   ├── db/                     # DB client wrapper & logging
+│   ├── lib/                    # Shared services & simulations
+│   ├── middleware/             # Auth & Error handling
+│   ├── app.js                  # Express setup
+│   └── server.js               # Entry point
+├── artillery-baseline.yml      # Load testing configuration
+└── users.csv                   # Test data for load scripts
 ```
 
-### 🔍 Discovery Checklist
-Students should investigate the following:
-1. **N+1 Query Patterns**: Check the logs when fetching order history. Why are there so many DB calls? 🕵️‍♂️
-2. **Missing Indexes**: Run `EXPLAIN ANALYZE` on common filter queries like searching restaurants by city. 📈
-3. **Blocking Synchronous Tasks**: Why does `POST /orders` take nearly a second even for a single item? ⏳
-4. **Foreign Key Performance**: What happens to join performance as the `order_items` table grows?
+---
+
+## 🧪 Load Testing
+
+Performance baselines are established using **Artillery.io**. To run the initial baseline test:
+
+```bash
+# Ensure the server is running first (npm run dev)
+npm run test:load
+```
+This script simulates 100+ concurrent user journeys, including authentication and history retrieval. Use the resulting report to identify bottlenecks.
 
 ---
 
-## 🎯 Optimization Tasks
-- [ ] Fix the N+1 in `src/controllers/order.controller.js`.
-- [ ] Fix the N+1 in `src/controllers/restaurant.controller.js`.
-- [ ] Implement missing indexes for all foreign key columns.
-- [ ] Offload the `emailService` call to a background worker or use a `setImmediate`/`Promise` non-blocking pattern.
+## 📊 Database Schema
+
+- **`users`**: Contains customer profiles and credentials.
+- **`restaurants`**: Catalog of 100 Indian restaurants across 5 major cities.
+- **`categories`**: Menu organization (Starters, Breads, etc.) per restaurant.
+- **`menu_items`**: Global catalog of thousands of Indian dishes.
+- **`orders`**: Historical transaction records (5,000+ entries).
+- **`order_items`**: Line item detail (30,000+ entries) mapped to orders.
+- **`reviews`**: Customer feedback loop with ratings.
 
 ---
 
-## 📜 API Documentation
+## 🛠️ Scripts
 
-### Auth
-- `POST /api/auth/register`: Create a new user.
-- `POST /api/auth/login`: Get a JWT token.
-
-### Restaurants
-- `GET /api/restaurants`: List restaurants (supports `city`, `limit`, `offset`).
-- `GET /api/restaurants/:id/menu`: Get menu items for a restaurant.
-
-### Orders
-- `GET /api/orders/history`: (Protected) Fetch user's full order history.
-- `POST /api/orders`: (Protected) Create a new food order.
-- `GET /api/orders/:id`: (Protected) Details for a single order.
+| Script | Command | Description |
+| :--- | :--- | :--- |
+| `start` | `node src/server.js` | Production start |
+| `dev` | `nodemon src/server.js` | Development start with hot-reload |
+| `migrate` | `psql $DATABASE_URL -f ...` | Wipe and recreate database schema |
+| `seed` | `psql $DATABASE_URL -f ...` | Load high-volume seed data |
+| `test:load` | `artillery run ...` | Execute baseline load profile test |
 
 ---
 
-## ⚠️ Disclaimer
-This code is intentionally suboptimal for educational purposes. Do not use this pattern in production (unless you want to be paged at 3 AM)! 😴
-
-Happy Profiling! 🚀✨
+## ⚠️ Internal Notes
+*The `order history` endpoint has been flagged by early testers for high latency. Investigation is required in the next sprint.*
