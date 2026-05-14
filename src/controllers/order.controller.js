@@ -16,7 +16,7 @@ const getOrderHistory = async (req, res) => {
 
     // Query 1: Get all orders for this user
     const ordersResult = await db.query(
-        'SELECT * FROM orders WHERE user_id = $1 ORDER BY order_date DESC',
+        'SELECT * FROM orders WHERE user_id = $1 ORDER BY created_at DESC',
         [userId]
     );
     const orders = ordersResult.rows;

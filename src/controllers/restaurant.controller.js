@@ -44,7 +44,7 @@ const getMenu = async (req, res) => {
 
     // Query 1: Get menu items
     const menuItemsResult = await db.query(
-        'SELECT * FROM menu_items WHERE restaurant_id = $1 AND is_available = TRUE',
+        'SELECT * FROM menu_items WHERE restaurant_id = $1 AND available = TRUE',
         [id]
     );
     const menuItems = menuItemsResult.rows;
