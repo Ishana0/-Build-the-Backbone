@@ -48,3 +48,20 @@ Execution Time: 148ms
 - Restaurant listing endpoint performed normally with low latency.
 - Menu endpoint initially triggered repeated category queries.
 - Order history endpoint became the primary bottleneck under load.
+
+---
+
+# Artillery After Part A Fixes
+ 
+| Endpoint                | Before P95 | After P95 | Improvement |
+|-------------------------|------------|-----------|-------------|
+| GET /api/restaurants    | 140ms      | 70ms      | 2×          |
+| GET /api/orders/history | 1450ms     | 220ms     | 6.5×        |
+| POST /api/orders        | 600ms      | 250ms     | 2.4×        |
+
+## Summary
+
+- Query optimization significantly reduced response times.
+- JOIN-based queries removed major N+1 bottlenecks.
+- Database indexes eliminated expensive sequential scans.
+- Order history endpoint showed the highest improvement after optimization.
