@@ -1,0 +1,20 @@
+{
+  "aggregate": {
+    "counters": {
+      "http.requests": 1800,
+      "http.responses": 1780
+    },
+    "rates": {
+      "http.request_rate": 30
+    },
+    "summaries": {
+      "http.response_time": {
+        "min": 40,
+        "max": 1600,
+        "median": 180,
+        "p95": 950,
+        "p99": 1400
+      }
+    }
+  }
+}
